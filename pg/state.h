@@ -1,19 +1,23 @@
 #ifndef PG_STATE_H
 #define PG_STATE_H
 
+#include <stdio.h>
+#include <stdlib.h>
+
 #define MAX_PIECES 32
 
 typedef unsigned char uchar;
+typedef unsigned int uint;
 
 typedef struct{
     uchar kind;
-    uchar state;
+    uchar stat;
     uchar p_x;
     uchar p_y;
 } pgpiece;
 
 typedef struct{
-    pg_piece pieces[MAX_PIECES];
+    pgpiece pieces[MAX_PIECES];
     int n_pieces;
 } pgstate;
 
