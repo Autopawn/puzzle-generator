@@ -5,6 +5,8 @@
 #include <stdlib.h>
 
 #define MAX_PIECES 32
+#define STATE_VARS 4
+#define MAX_CHOICES 32
 
 typedef unsigned char uchar;
 typedef unsigned int uint;
@@ -19,6 +21,7 @@ typedef struct{
 typedef struct{
     pgpiece pieces[MAX_PIECES];
     int n_pieces;
+    int vars[STATE_VARS];
 } pgstate;
 
 typedef struct{
@@ -28,8 +31,12 @@ typedef struct{
 } pglevel;
 
 static inline uchar pglevel_at(const pglevel *level, uchar x, uchar y, uchar outside){
+    // Gets a cell on the given position or returns outside if it is outside the level.
     if(x>level->max_x || y>level->max_y) return outside;
     else return level->cells[y][x];
 }
+
+uint pgstate_hash(const pgstate *state);
+int pgstate_equals(const pgstate *state_a, const pgstate *state_b);
 
 #endif
