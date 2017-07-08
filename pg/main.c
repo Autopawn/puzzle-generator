@@ -7,6 +7,7 @@ int main(int argc, char const *argv[]){
 	}
 	pglevel level;
 	pgstate ini_state;
-	pgread_from_file(argv[1],0, &level, &ini_state);
+	pgread_from_file(argv[1],&level,&ini_state);
+	pgshow_state(&level,&ini_state);
 	return 0;
 }
