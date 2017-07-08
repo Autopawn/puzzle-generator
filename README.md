@@ -1,2 +1,2 @@
 # puzzle-generator
-Procedural puzzle generator.
+Framework for procedural puzzle generator.

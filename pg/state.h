@@ -6,7 +6,6 @@
 
 #define MAX_PIECES 32
 #define STATE_VARS 4
-#define MAX_CHOICES 32
 
 typedef unsigned char uchar;
 typedef unsigned int uint;
