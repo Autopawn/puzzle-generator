@@ -1,5 +1,6 @@
 # Autopawn things
 .tags*
+bin
 
 # Prerequisites
 *.d
