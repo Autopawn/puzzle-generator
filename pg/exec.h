@@ -31,8 +31,6 @@ typedef struct{
     pgnext next;
 } pgresult;
 
-typedef struct _pgexecnode pgexecnode;
-
 typedef struct _pgexectree pgexectree;
 
 typedef pgresult (*pglevelrule)(const pglevel*, const pgstate *);
@@ -40,6 +38,6 @@ typedef pgresult (*pglevelrule)(const pglevel*, const pgstate *);
 pgexectree *compute_exectree(const pglevel *level, pgstate initial,
     	pglevelrule rule, int max_deepness);
 
-void free_exectree(pgexectree *tree);
+void pgexectree_free(pgexectree *tree);
 
 #endif

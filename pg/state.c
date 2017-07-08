@@ -65,6 +65,7 @@ void pgread_from_file(const char *fname, pglevel *lvl, pgstate *ini){
 	lvl->max_x = 0;
 	lvl->max_y = 0;
 	ini->n_pieces = 0;
+	for(int i=0;i<STATE_VARS;i++) ini->vars[i] = 0;
 	// Read the file according to the mode:
 	int current_x=0;
 	int current_y=0;

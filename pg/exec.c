@@ -2,6 +2,8 @@
 
 typedef pgresult (*pgrule)(const pgstate *);
 
+typedef struct _pgexecnode pgexecnode;
+
 struct _pgexecnode{
     int deepness;
     pgstate state;
@@ -132,7 +134,7 @@ pgexectree *compute_exectree(const pglevel *level, pgstate initial,
     pgstate_step(rule_with_level,&res_state,&res_conclusion);
     tree->root = pgexectree_insert(tree,res_state,res_conclusion);
     // Iterate through the different levels of deepness
-    while(tree->current_deepness<=max_deepness){
+    while(tree->current_deepness<max_deepness){
         int over = pgexectree_proliferate_next(tree,rule_with_level);
 		// Pass to the next deepness level:
 		if(over){
@@ -155,4 +157,16 @@ pgexectree *compute_exectree(const pglevel *level, pgstate initial,
 		}
     }
     return tree;
+}
+
+void pgexectree_free(pgexectree *tree){
+	for(int i=0;i<HASH_SLOTS;i++){
+		pgexecnode *node = tree->hash_slots[i];
+		while(node!=NULL){
+			pgexecnode *old = node;
+			node = node->link;
+			free(old);
+		}
+	}
+	free(tree);
 }
