@@ -82,7 +82,7 @@ int pgexectree_proliferate_next(pgexectree *tree, pgrule rule){
 	// Check the result of this state:
     pgresult result = rule(&node->state);
     // Add the derivated states to the hashtable and to the queue:
-    if(result.conclusion==CHOICES){
+    if(result.conclusion==CHOICE){
         // Step forward the states of the choice:
         pgconclusion conclus[MAX_CHOICES];
         for(int k=0;k<result.n_choices;k++){

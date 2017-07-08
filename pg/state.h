@@ -29,8 +29,10 @@ typedef struct{
     uchar cells[256][256];
 } pglevel;
 
-static inline uchar pglevel_at(const pglevel *level, uchar x, uchar y, uchar outside){
-    // Gets a cell on the given position or returns outside if it is outside the level.
+static inline uchar pglevel_at(const pglevel *level,
+		uchar x, uchar y, uchar outside){
+    // Gets a cell on the given position or returns outside if
+	// it is outside the level.
     if(x>level->max_x || y>level->max_y) return outside;
     else return level->cells[y][x];
 }

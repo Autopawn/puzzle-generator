@@ -42,7 +42,9 @@ int pgstate_equals(const pgstate *state_a, const pgstate *state_b){
     pgstate_sort(state_a);
     pgstate_sort(state_b);
     for(int k=0;k<state_a->n_pieces;k++){
-        if(pgpiece_value(&state_a->pieces[k])!=pgpiece_value(&state_b->pieces[k])) return 0;
+		uint piece_a_val = pgpiece_value(&state_a->pieces[k]);
+		uint piece_b_val = pgpiece_value(&state_b->pieces[k]);
+        if(piece_a_val!=piece_b_val) return 0;
     }
     return 1;
 }

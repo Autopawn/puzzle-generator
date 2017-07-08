@@ -22,7 +22,7 @@ typedef union{
 } pgnext;
 
 typedef enum{
-    WIN, STEP, CHOICES
+    WIN, STEP, CHOICE
 } pgconclusion;
 
 typedef struct{
