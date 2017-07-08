@@ -40,4 +40,6 @@ static inline uchar pglevel_at(const pglevel *level,
 uint pgstate_hash(const pgstate *state);
 int pgstate_equals(const pgstate *state_a, const pgstate *state_b);
 
+void pgread_from_file(const char *fname, int mode, pglevel *lvl, pgstate *ini);
+
 #endif
