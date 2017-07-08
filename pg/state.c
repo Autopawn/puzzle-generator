@@ -1,4 +1,4 @@
-#include "state.h"
+#include "puzzlegen.h"
 
 /* NOTE: pgpiece_value can be used for comparison of pieces because its bijective,
 if pgpiece changes it may not be longer useful for that purpose.

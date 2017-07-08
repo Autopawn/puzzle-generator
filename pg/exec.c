@@ -1,26 +1,4 @@
-#include "exec.h"
-
-typedef pgresult (*pgrule)(const pgstate *);
-
-typedef struct _pgexecnode pgexecnode;
-
-struct _pgexecnode{
-    int deepness;
-    pgstate state;
-    pgconclusion conclusion;
-    pgexecnode *link; // For use on a linked list on a hash slot.
-    pgexecnode *nexts[MAX_CHOICES]; // For use on a tree graph.
-    int n_nexts;
-};
-
-struct _pgexectree{
-    pgexecnode *root;
-    pgexecnode *hash_slots[HASH_SLOTS];
-    pgexecnode *queues[2][QUEUE_SIZE];
-    int current_deepness;
-    int queue_len[2];
-    int current_queue_advance;
-};
+#include "puzzlegen.h"
 
 void pgstate_step(pgrule rule, pgstate *state, pgconclusion *conclu){
     // Advances all the steps of a given state until a choice,

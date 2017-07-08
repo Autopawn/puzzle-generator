@@ -1,7 +1,7 @@
 #ifndef PG_RULES_H
 #define PG_RULES_H
 
-#include "../pg/exec.h"
+#include "../bin/puzzlegen.h"
 
 #define OPEN 0
 #define WALL 1
