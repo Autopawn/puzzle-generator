@@ -33,15 +33,6 @@ typedef struct{
 
 typedef struct _pgexecnode pgexecnode;
 
-struct _pgexecnode{
-    int deepness;
-    pgstate state;
-    pgconclusion conclusion;
-    pgexecnode *link; // For use on a linked list on a hash slot.
-    pgexecnode *nexts[MAX_CHOICES]; // For use on a tree graph.
-    int n_nexts;
-};
-
 typedef struct _pgexectree pgexectree;
 
 typedef pgresult (*pglevelrule)(const pglevel*, const pgstate *);

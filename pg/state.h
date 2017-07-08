@@ -41,6 +41,6 @@ uint pgstate_hash(const pgstate *state);
 int pgstate_equals(const pgstate *state_a, const pgstate *state_b);
 
 void pgread_from_file(const char *fname, pglevel *lvl, pgstate *ini);
-void pgshow_state(const pglevel *lvl, const pgstate *ini);
+void pgshow_state(const pglevel *lvl, const pgstate *ini, int mode);
 
 #endif

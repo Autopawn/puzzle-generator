@@ -58,8 +58,8 @@ pgresult slide_rule(const pglevel *level, const pgstate *state){
 				// Add the choice:
 				pgstate *resulting =
 					&result.next.choices[result.n_choices].resulting;
-				*resulting = *state;
 				result.n_choices++;
+				*resulting = *state;
 				resulting->pieces[k].stat = dir;
 				sprintf(result.next.choices[result.n_choices].description,
 					"move (%d,%d) %s\n",piece.p_x,piece.p_y,dir_name[dir]);

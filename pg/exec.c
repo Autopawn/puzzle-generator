@@ -2,6 +2,15 @@
 
 typedef pgresult (*pgrule)(const pgstate *);
 
+struct _pgexecnode{
+    int deepness;
+    pgstate state;
+    pgconclusion conclusion;
+    pgexecnode *link; // For use on a linked list on a hash slot.
+    pgexecnode *nexts[MAX_CHOICES]; // For use on a tree graph.
+    int n_nexts;
+};
+
 struct _pgexectree{
     pgexecnode *root;
     pgexecnode *hash_slots[HASH_SLOTS];
@@ -11,16 +20,17 @@ struct _pgexectree{
     int current_queue_advance;
 };
 
-pgresult pgstate_step(pgstate *state, pgrule rule){
-    // Advances all the steps of a given state until a choice, victory or loop is reached.
-    // TODO: Check for loop, return NULL when that happens.
-    pgresult result;
+void pgstate_step(pgrule rule, pgstate *state, pgconclusion *conclu){
+    // Advances all the steps of a given state until a choice,
+	// victory or loop is reached.
+    // TODO: Check for loop, return something when that happens.
+	pgresult result;
     while(1){
         result = rule(state);
         if(result.conclusion!=STEP) break;
-        state = &result.next.step;
+        *state = result.next.step;
     }
-    return result;
+	*conclu = result.conclusion;
 }
 
 pgexecnode *pgexectree_insert(pgexectree *tree, pgstate state,
@@ -79,22 +89,20 @@ int pgexectree_proliferate_next(pgexectree *tree, pgrule rule){
 	pgexecnode *node =
 		tree->queues[current_queue][tree->current_queue_advance];
 	tree->current_queue_advance++;
-	// Check the result of this state:
-    pgresult result = rule(&node->state);
-    // Add the derivated states to the hashtable and to the queue:
-    if(result.conclusion==CHOICE){
-        // Step forward the states of the choice:
-        pgconclusion conclus[MAX_CHOICES];
+	if(node->conclusion==CHOICE){
+		// Recover result of this state:
+	    pgresult result = rule(&node->state);
+	    // Add the derivated states to the hashtable and to the queue:
         for(int k=0;k<result.n_choices;k++){
-            pgresult res = pgstate_step(&result.next.choices[k].resulting,rule);
-            conclus[k] = res.conclusion;
-        }
-        // Insert the states as nodes on the execution tree:
-        for(int k=0;k<result.n_choices;k++){
-            pgexecnode *deriv = pgexectree_insert(tree,
-				result.next.choices[k].resulting,conclus[k]);
-            node->nexts[node->n_nexts] = deriv;
-            node->n_nexts++;
+			// Step forward the state of the choice, and insert it on the
+			// execution tree.
+			pgstate res_state = result.next.choices[k].resulting;
+			pgconclusion res_conclusion;
+			pgstate_step(rule,&res_state,&res_conclusion);
+			pgexecnode *deriv =
+				pgexectree_insert(tree,res_state,res_conclusion);
+			node->nexts[node->n_nexts] = deriv;
+			node->n_nexts++;
         }
     }
 	return 0;
@@ -119,8 +127,10 @@ pgexectree *compute_exectree(const pglevel *level, pgstate initial,
     pgresult rule_with_level(const pgstate *state){
         return rule(level,state);
     }
-    pgresult result = pgstate_step(&initial,rule_with_level);
-    tree->root = pgexectree_insert(tree,initial,result.conclusion);
+	pgstate res_state = initial;
+	pgconclusion res_conclusion;
+    pgstate_step(rule_with_level,&res_state,&res_conclusion);
+    tree->root = pgexectree_insert(tree,res_state,res_conclusion);
     // Iterate through the different levels of deepness
     while(tree->current_deepness<=max_deepness){
         int over = pgexectree_proliferate_next(tree,rule_with_level);
@@ -132,6 +142,16 @@ pgexectree *compute_exectree(const pglevel *level, pgstate initial,
 			// Advance to the next queue:
 			tree->current_queue_advance = 0;
 			tree->current_deepness++;
+			#if DEBUG>=1
+			printf("Level %d has %d new states.\n",
+				tree->current_deepness,tree->queue_len[!current_queue]);
+			#endif
+			#if DEBUG>=2
+			for(int i=0;i<tree->queue_len[!current_queue];i++){
+				pgstate *state = &tree->queues[!current_queue][i]->state;
+				pgshow_state(level,state,1);
+			}
+			#endif
 		}
     }
     return tree;

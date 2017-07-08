@@ -106,7 +106,7 @@ void pgread_from_file(const char *fname, pglevel *lvl, pgstate *ini){
 	printf("Level \"%s\" loaded.\n",fname);
 }
 
-void pgshow_state(const pglevel *lvl, const pgstate *state){
+void pgshow_state(const pglevel *lvl, const pgstate *state, int mode){
 	for(int y=-1;y<=lvl->max_y+1;y++){
 		for(int x=-1;x<=lvl->max_x+1;x++){
 			if(y==-1 || y==lvl->max_y+1 || x==-1 || x==lvl->max_x+1){
@@ -150,5 +150,11 @@ void pgshow_state(const pglevel *lvl, const pgstate *state){
 			printf("\e[0m");
 		}
 		printf("\n");
+	}
+	if(mode==1){
+		for(int k=0;k<state->n_pieces;k++){
+			pgpiece pie = state->pieces[k];
+			printf("p: %d (%d,%d) %d\n",pie.kind,pie.p_x,pie.p_y,pie.stat);
+		}
 	}
 }
