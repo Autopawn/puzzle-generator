@@ -9,10 +9,16 @@
 // ^ Number of linked lists on the hash table (prime number).
 #define QUEUE_SIZE 8388608
 // ^ Size of the queue of states to proliferate.
+#define CHOICE_DESCRIPTION_BUFFER 128
+
+typedef struct{
+	pgstate resulting;
+	char description[CHOICE_DESCRIPTION_BUFFER];
+} pgchoice;
 
 typedef union{
     pgstate step;
-    pgstate choices[MAX_CHOICES];
+    pgchoice choices[MAX_CHOICES];
 } pgnext;
 
 typedef enum{
@@ -38,7 +44,6 @@ struct _pgexecnode{
 
 typedef struct _pgexectree pgexectree;
 
-typedef pgresult (*pgrule)(const pgstate *);
 typedef pgresult (*pglevelrule)(const pglevel*, const pgstate *);
 
 pgexectree *compute_exectree(const pglevel *level, pgstate initial,

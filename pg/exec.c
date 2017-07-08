@@ -1,5 +1,7 @@
 #include "exec.h"
 
+typedef pgresult (*pgrule)(const pgstate *);
+
 struct _pgexectree{
     pgexecnode *root;
     pgexecnode *hash_slots[HASH_SLOTS];
@@ -84,12 +86,13 @@ int pgexectree_proliferate_next(pgexectree *tree, pgrule rule){
         // Step forward the states of the choice:
         pgconclusion conclus[MAX_CHOICES];
         for(int k=0;k<result.n_choices;k++){
-            pgresult res = pgstate_step(&result.next.choices[k],rule);
+            pgresult res = pgstate_step(&result.next.choices[k].resulting,rule);
             conclus[k] = res.conclusion;
         }
         // Insert the states as nodes on the execution tree:
         for(int k=0;k<result.n_choices;k++){
-            pgexecnode *deriv = pgexectree_insert(tree,result.next.choices[k],conclus[k]);
+            pgexecnode *deriv = pgexectree_insert(tree,
+				result.next.choices[k].resulting,conclus[k]);
             node->nexts[node->n_nexts] = deriv;
             node->n_nexts++;
         }
