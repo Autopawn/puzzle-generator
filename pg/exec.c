@@ -44,6 +44,8 @@ pgexecnode *pgexectree_insert(pgexectree *tree, pgstate state,
         node->n_nexts = 0;
         // Add it to the linked list.
         *linked_pointer = node;
+		// Raise win_reached flag if it is a WIN.
+		if(conclu==WIN) tree->win_reached = 1;
         // Add it to the next queue.
         int next_queue = (tree->current_deepness+1)%2;
         if(tree->queue_len[next_queue]>=QUEUE_SIZE){
@@ -88,8 +90,8 @@ int pgexectree_proliferate_next(pgexectree *tree, pgrule rule){
 	return 0;
 }
 
-pgexectree *compute_exectree(const pglevel *level, pgstate initial,
-    	pglevelrule rule, int max_deepness){
+pgexectree *compute_pgexectree(const pglevel *level, pgstate initial,
+    	pglevelrule rule, int max_deepness, int stop_at_win){
     // Initialize tree:
     pgexectree *tree = (pgexectree*) malloc(sizeof(pgexectree));
     if(!tree){
@@ -103,6 +105,7 @@ pgexectree *compute_exectree(const pglevel *level, pgstate initial,
     tree->queue_len[0] = 0;
     tree->queue_len[1] = 0;
     tree->current_queue_advance = 0;
+	tree->win_reached = 0;
     // Add initial state to the first queue:
     pgresult rule_with_level(const pgstate *state){
         return rule(level,state);
@@ -112,7 +115,8 @@ pgexectree *compute_exectree(const pglevel *level, pgstate initial,
     pgstate_step(rule_with_level,&res_state,&res_conclusion);
     tree->root = pgexectree_insert(tree,res_state,res_conclusion);
     // Iterate through the different levels of deepness
-    while(tree->current_deepness<max_deepness){
+	int terminate = 0;
+    while(!terminate){
         int over = pgexectree_proliferate_next(tree,rule_with_level);
 		// Pass to the next deepness level:
 		if(over){
@@ -123,7 +127,7 @@ pgexectree *compute_exectree(const pglevel *level, pgstate initial,
 			tree->current_queue_advance = 0;
 			tree->current_deepness++;
 			#if DEBUG>=1
-			printf("Level %d has %d new states.\n",
+			printf("Level %3d has %5d new states.\n",
 				tree->current_deepness,tree->queue_len[!current_queue]);
 			#endif
 			#if DEBUG>=2
@@ -132,6 +136,11 @@ pgexectree *compute_exectree(const pglevel *level, pgstate initial,
 				pgshow_state(level,state,1);
 			}
 			#endif
+			int a = (tree->current_deepness>=max_deepness);
+			int b = (tree->current_deepness>=MAX_DEEPNESS);
+			int c = (stop_at_win && tree->win_reached);
+			int d = (tree->queue_len[!current_queue]==0);
+			terminate = (a || b || c || d);
 		}
     }
     return tree;

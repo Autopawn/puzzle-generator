@@ -49,6 +49,23 @@ int pgstate_equals(const pgstate *state_a, const pgstate *state_b){
     return 1;
 }
 
+int pgstate_all_pieces_different(
+		const pgstate *state_a, const pgstate *state_b, int ignore_stat){
+	for(int i=0;i<state_a->n_pieces;i++){
+		pgpiece piece_a = state_a->pieces[i];
+		for(int k=0;k<state_b->n_pieces;k++){
+			pgpiece piece_b = state_b->pieces[k];
+			if(piece_a.kind == piece_b.kind &&
+					piece_a.p_x == piece_b.p_x &&
+					piece_a.p_y == piece_b.p_y &&
+					(ignore_stat || piece_a.stat == piece_b.stat)){
+				return 0;
+			}
+		}
+	}
+	return 1;
+}
+
 void pgread_from_file(const char *fname, pglevel *lvl, pgstate *ini){
 	// Check that the output pointers aren't NULL.
 	if(lvl==NULL || ini==NULL){

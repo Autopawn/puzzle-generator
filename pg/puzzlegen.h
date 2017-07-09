@@ -43,6 +43,8 @@ static inline uchar pglevel_at(const pglevel *level,
 
 uint pgstate_hash(const pgstate *state);
 int pgstate_equals(const pgstate *state_a, const pgstate *state_b);
+int pgstate_all_pieces_different(
+		const pgstate *state_a, const pgstate *state_b, int ignore_stat);
 
 void pgread_from_file(const char *fname, pglevel *lvl, pgstate *ini);
 void pgshow_state(const pglevel *lvl, const pgstate *ini, int mode);
@@ -58,6 +60,9 @@ void pgshow_state(const pglevel *lvl, const pgstate *ini, int mode);
 #define QUEUE_SIZE 8388608
 // ^ Size of the queue of states to proliferate.
 #define CHOICE_DESCRIPTION_BUFFER 128
+// ^ Number of character that describe each choice.
+#define MAX_DEEPNESS 128
+// ^ Maximum level of deepness that the execution tree will have.
 
 typedef struct{
 	pgstate resulting;
@@ -97,14 +102,26 @@ typedef struct{
     int current_deepness;
     int queue_len[2];
     int current_queue_advance;
+	int win_reached;
 } pgexectree;
 
 typedef pgresult (*pgrule)(const pgstate *);
 typedef pgresult (*pglevelrule)(const pglevel*, const pgstate *);
 
-pgexectree *compute_exectree(const pglevel *level, pgstate initial,
-    	pglevelrule rule, int max_deepness);
+pgexectree *compute_pgexectree(const pglevel *level, pgstate initial,
+    	pglevelrule rule, int max_deepness, int stop_at_win);
 
 void pgexectree_free(pgexectree *tree);
+
+//##########################################################
+//# EXECUTION ANALYSIS                                     #
+//##########################################################
+
+void pgexectree_states_at_deepness(
+		const pgexectree *tree, int only_winning,
+		int result[MAX_DEEPNESS]);
+void pgexectree_all_pieces_different_states(
+		const pgexectree *tree, int only_winning, int ignore_stat,
+		int result[MAX_DEEPNESS]);
 
 #endif
