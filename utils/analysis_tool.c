@@ -18,7 +18,7 @@ int main(int argc, char const *argv[]){
 	pgshow_state(&level,&ini_state,0);
 	// Compute execution tree:
 	pgexectree *tree = compute_pgexectree(
-		&level,ini_state,slide_rule,MAX_DEEPNESS,stop_at_win);
+		&level,ini_state,slide_rule,-1,-1,stop_at_win);
 	// Check number of new states for each deepness level:
 	int n_states[MAX_DEEPNESS];
 	int n_win_states[MAX_DEEPNESS];
@@ -27,6 +27,7 @@ int main(int argc, char const *argv[]){
 	pgexectree_states_at_deepness(tree,0,n_states);
 	pgexectree_states_at_deepness(tree,1,n_win_states);
 	pgexectree_all_pieces_different_states(tree,1,1,n_different_win_states);
+	printf("Computed states:\n  %d\n",tree->n_states);
 	printf("New states:\n");
 	printf("  LEVEL   ALLDIFF WINNING  OTHERS\n");
 	for(int i=0;i<tree->current_deepness;i++){

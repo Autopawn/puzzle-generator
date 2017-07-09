@@ -46,7 +46,8 @@ pgexecnode *pgexectree_insert(pgexectree *tree, pgstate state,
         *linked_pointer = node;
 		// Raise win_reached flag if it is a WIN.
 		if(conclu==WIN) tree->win_reached = 1;
-        // Add it to the next queue.
+        // Add it to the next queue and update state counter.
+		tree->n_states+=1;
         int next_queue = (tree->current_deepness+1)%2;
         if(tree->queue_len[next_queue]>=QUEUE_SIZE){
             printf("Queue size not large enough.\n");
@@ -91,7 +92,7 @@ int pgexectree_proliferate_next(pgexectree *tree, pgrule rule){
 }
 
 pgexectree *compute_pgexectree(const pglevel *level, pgstate initial,
-    	pglevelrule rule, int max_deepness, int stop_at_win){
+    	pglevelrule rule, int max_deepness, int max_states, int stop_at_win){
     // Initialize tree:
     pgexectree *tree = (pgexectree*) malloc(sizeof(pgexectree));
     if(!tree){
@@ -105,6 +106,7 @@ pgexectree *compute_pgexectree(const pglevel *level, pgstate initial,
     tree->queue_len[0] = 0;
     tree->queue_len[1] = 0;
     tree->current_queue_advance = 0;
+	tree->n_states = 0;
 	tree->win_reached = 0;
     // Add initial state to the first queue:
     pgresult rule_with_level(const pgstate *state){
@@ -136,11 +138,12 @@ pgexectree *compute_pgexectree(const pglevel *level, pgstate initial,
 				pgshow_state(level,state,1);
 			}
 			#endif
-			int a = (tree->current_deepness>=max_deepness);
+			int a = (max_deepness>=0 && tree->current_deepness>=max_deepness);
 			int b = (tree->current_deepness>=MAX_DEEPNESS);
 			int c = (stop_at_win && tree->win_reached);
 			int d = (tree->queue_len[!current_queue]==0);
-			terminate = (a || b || c || d);
+			int e = (max_states>=0 && tree->n_states>=max_states);
+			terminate = (a || b || c || d || e);
 		}
     }
     return tree;

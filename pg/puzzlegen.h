@@ -102,6 +102,7 @@ typedef struct{
     int current_deepness;
     int queue_len[2];
     int current_queue_advance;
+	int n_states;
 	int win_reached;
 } pgexectree;
 
@@ -109,7 +110,7 @@ typedef pgresult (*pgrule)(const pgstate *);
 typedef pgresult (*pglevelrule)(const pglevel*, const pgstate *);
 
 pgexectree *compute_pgexectree(const pglevel *level, pgstate initial,
-    	pglevelrule rule, int max_deepness, int stop_at_win);
+    	pglevelrule rule, int max_deepness, int max_states, int stop_at_win);
 
 void pgexectree_free(pgexectree *tree);
 
