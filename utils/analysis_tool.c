@@ -17,7 +17,7 @@ int main(int argc, char const *argv[]){
 	// Show it:
 	pgshow_state(&level,&ini_state,0);
 	// Compute execution tree:
-	pgexectree *tree = compute_pgexectree(
+	const pgexectree *tree = compute_pgexectree(
 		&level,ini_state,slide_rule,-1,-1,stop_at_win);
 	// Check number of new states for each deepness level:
 	int n_states[MAX_DEEPNESS];
@@ -52,7 +52,7 @@ int main(int argc, char const *argv[]){
 	if(min_turns_win==-1) printf("  ?\n");
 	else if(min_turns_win==-2) printf("  X\n");
 	else if(n_different_win_states[min_turns_win]==n_win_states[min_turns_win]){
-		printf(" YES\n");
+		printf("  YES\n");
 	}else printf("  NO\n");
 	// Free tree:
 	pgexectree_free(tree);

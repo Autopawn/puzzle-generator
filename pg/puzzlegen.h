@@ -4,6 +4,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#if THREADS>0
+	#include <pthread.h>
+#endif
+
 //##########################################################
 //# STATE DEFINITION                                       #
 //##########################################################
@@ -104,15 +108,20 @@ typedef struct{
     int current_queue_advance;
 	int n_states;
 	int win_reached;
+	#if THREADS>0
+		pthread_mutex_t hash_slots_mutexes[HASH_SLOTS];
+		pthread_mutex_t tree_mutex; // Mutex for next queue and tree variables.
+		pthread_mutex_t queue_mutex; // Mutex for current queue.
+	#endif
 } pgexectree;
 
 typedef pgresult (*pgrule)(const pgstate *);
 typedef pgresult (*pglevelrule)(const pglevel*, const pgstate *);
 
-pgexectree *compute_pgexectree(const pglevel *level, pgstate initial,
+const pgexectree *compute_pgexectree(const pglevel *level, pgstate initial,
     	pglevelrule rule, int max_deepness, int max_states, int stop_at_win);
 
-void pgexectree_free(pgexectree *tree);
+void pgexectree_free(const pgexectree *tree);
 
 //##########################################################
 //# EXECUTION ANALYSIS                                     #
