@@ -1,4 +1,4 @@
-threads = 2
+threads = 4
 debug = 2
 flags = -pthread -D THREADS=$(threads) -D DEBUG=$(debug)
 

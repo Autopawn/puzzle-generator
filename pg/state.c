@@ -25,11 +25,13 @@ uint pgstate_hash(const pgstate *state){
     uint hash = 0;
     for(int k=0;k<STATE_VARS;k++){
         hash ^= state->vars[k];
-        hash = (hash<<15) | (hash>>17);
+		int move = (46+hash%6871)%32;
+		hash = (hash<<move) | (hash>>(32-move));
     }
     for(int k=0;k<state->n_pieces;k++){
         hash ^= pgpiece_value(&state->pieces[k]);
-        hash = (hash<<13) | (hash>>19);
+		int move = (43+hash%7559)%32;
+		hash = (hash<<move) | (hash>>(32-move));
     }
     return hash;
 }
