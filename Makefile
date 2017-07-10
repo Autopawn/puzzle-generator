@@ -1,4 +1,4 @@
-threads = 4
+threads = 0
 debug = 2
 flags = -pthread -D THREADS=$(threads) -D DEBUG=$(debug)
 
@@ -7,7 +7,6 @@ build: clean puzzlegen puzzlerules puzzleutils
 puzzlegen:
 	# Compile puzzlegen static library:
 	mkdir bin
-	echo "$(flags)"
 	gcc -Wall -std=c11 -c pg/state.c -o bin/state.o $(flags)
 	gcc -Wall -std=c11 -c pg/exec.c -o bin/exec.o $(flags)
 	gcc -Wall -std=c11 -c pg/analysis.c -o bin/analysis.o $(flags)
@@ -16,7 +15,7 @@ puzzlegen:
 	rm bin/*.o
 puzzlerules:
 	# Compile puzzle rules:
-	gcc -Wall -std=c11 -c rules/slide.c -o bin/slide.o
+	gcc -Wall -std=c11 -c rules/slide.c -o bin/slide.o $(flags)
 	ar rcs bin/libpuzzlerules.a bin/*.o
 	cp rules/rules.h bin/rules.h
 	rm bin/*.o
