@@ -27,7 +27,7 @@ int main(int argc, char const *argv[]){
 	pgexectree_states_at_deepness(tree,0,n_states);
 	pgexectree_states_at_deepness(tree,1,n_win_states);
 	pgexectree_all_pieces_different_states(tree,1,1,n_different_win_states);
-	printf("Computed states:\n  %d\n",tree->n_states);
+	printf("Computed different states:\n  %d\n",tree->n_states);
 	printf("New states:\n");
 	printf("  LEVEL   ALLDIFF WINNING  OTHERS\n");
 	for(int i=0;i<tree->current_deepness;i++){
