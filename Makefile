@@ -23,5 +23,7 @@ puzzleutils:
 	# Compile analysis utility:
 	gcc -Wall -std=c11 -static utils/analysis_tool.c \
 		-Lbin -lpuzzlegen -lpuzzlerules -o bin/analysis_tool.exe $(flags)
+	gcc -Wall -std=c11 -static utils/execution_tool.c \
+		-Lbin -lpuzzlegen -lpuzzlerules -o bin/execution_tool.exe $(flags)
 clean:
 	rm -rf bin || true

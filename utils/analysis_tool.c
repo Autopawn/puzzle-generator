@@ -3,6 +3,8 @@
 
 #include <string.h>
 
+#define PUZZLE_RULE slide_rule
+
 int main(int argc, char const *argv[]){
 	if(!(argc==2 || (argc==3 && strcmp(argv[2],"-f")==0))){
 		printf("Usage: %s <fname> [-f]\n",argv[0]);
@@ -18,7 +20,7 @@ int main(int argc, char const *argv[]){
 	pgshow_state(&level,&ini_state,0);
 	// Compute execution tree:
 	const pgexectree *tree = compute_pgexectree(
-		&level,ini_state,slide_rule,-1,-1,stop_at_win);
+		&level,ini_state,PUZZLE_RULE,-1,-1,stop_at_win);
 	// Check number of new states for each deepness level:
 	int n_states[MAX_DEEPNESS];
 	int n_win_states[MAX_DEEPNESS];
