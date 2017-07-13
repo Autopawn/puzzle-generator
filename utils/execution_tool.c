@@ -21,7 +21,7 @@ int main(int argc, char const *argv[]){
 	while(1){
 		printf("\033[2J\033[1;1H");
 		pgshow_state(&level,&state,0);
-		usleep(50000);
+		usleep(30000);
 		pgresult result;
 		while(1){
 			result = PUZZLE_RULE(&level,&state);
@@ -29,22 +29,27 @@ int main(int argc, char const *argv[]){
 			state = result.next.step;
 			printf("\033[2J\033[1;1H");
 			pgshow_state(&level,&state,0);
-			usleep(50000);
+			usleep(30000);
 		}
 		if(result.conclusion==CHOICE){
-			printf("CHOICE %d:\n",++n_moves);
-			for(int i=0;i<result.n_choices;i++){
-				printf("%6d) %s\n",i,result.next.choices[i].description);
-			}
-			while(1){
-				int answer;
-				printf("Choice: ");
-				scanf("%d",&answer);
-				if(0<=answer && answer<result.n_choices){
-					state = result.next.choices[answer].resulting;
-					break;
-				}else{
-					printf("Enter a valid number!\n");
+			if(result.n_choices<=0){
+				printf("NO CHOICES!\n");
+				break;
+			}else{
+				printf("CHOICE %d:\n",++n_moves);
+				for(int i=0;i<result.n_choices;i++){
+					printf("%6d) %s\n",i,result.next.choices[i].description);
+				}
+				while(1){
+					int answer;
+					printf("Choice: ");
+					scanf("%d",&answer);
+					if(0<=answer && answer<result.n_choices){
+						state = result.next.choices[answer].resulting;
+						break;
+					}else{
+						printf("Enter a valid number!\n");
+					}
 				}
 			}
 		}else if(result.conclusion==WIN){
