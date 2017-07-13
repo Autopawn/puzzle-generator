@@ -1,6 +1,7 @@
 #include "../bin/puzzlegen.h"
 #include "../bin/rules.h"
 
+#include <unistd.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -18,16 +19,20 @@ int main(int argc, char const *argv[]){
 	pgread_from_file(argv[1],&level,&state);
 	//Draw level:
 	while(1){
+		printf("\033[2J\033[1;1H");
 		pgshow_state(&level,&state,0);
+		usleep(50000);
 		pgresult result;
 		while(1){
 			result = PUZZLE_RULE(&level,&state);
 			if(result.conclusion!=STEP) break;
 			state = result.next.step;
+			printf("\033[2J\033[1;1H");
 			pgshow_state(&level,&state,0);
+			usleep(50000);
 		}
 		if(result.conclusion==CHOICE){
-			printf("CHOICE %d:\n",n_moves++);
+			printf("CHOICE %d:\n",++n_moves);
 			for(int i=0;i<result.n_choices;i++){
 				printf("%6d) %s\n",i,result.next.choices[i].description);
 			}
