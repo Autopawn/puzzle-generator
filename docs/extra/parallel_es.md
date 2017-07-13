@@ -79,7 +79,7 @@ Esto se resolvió con:
 
 Para probar, se diseñó un puzzle que consiste en mover piezas en una dirección hasta que choquen con una pared o otra pieza y llegar a una **meta**.
 
-Se probaron los siguientes niveles, generando el árbol hasta el nivel de profunidad mínimo para obtener una victoria, en computadores de *labcomp*:
+Se probaron los siguientes niveles, generando el árbol hasta el nivel de profunidad mínimo para obtener una victoria, en computadores del *CSRG*:
 
 ## slide00.txt
 
@@ -103,16 +103,16 @@ Minimum turns to win:
 ###################
 #1111111111     11#
 #11              A#
-#1     1        11#
+#1    A1        11#
 #1   A 1         1#
 #      1    2    1#
 # A1            11#
-#1     1        11#
+#1     1 1      11#
 #11 11 A 1       1#
-#11 1111 111111111#
+#11 1111A111111111#
 ###################
 Computed different states:
-  61862
+  169254
 Minimum turns to win:
-  11
+  8
 ```
