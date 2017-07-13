@@ -79,7 +79,7 @@ Esto se resolvió con:
 
 Para probar, se diseñó un puzzle que consiste en mover piezas en una dirección hasta que choquen con una pared o otra pieza y llegar a una **meta**.
 
-Se probaron los siguientes niveles, generando el árbol hasta el nivel de profunidad mínimo para obtener una victoria, en computadores del *CSRG*:
+Se probaron los siguientes niveles, generando el árbol hasta el nivel de profunidad mínimo para obtener una victoria, en un computador del *CSRG*:
 
 ## slide00.txt
 
@@ -116,3 +116,40 @@ Computed different states:
 Minimum turns to win:
   8
 ```
+
+## Máquina
+
+```
+Architecture:         x86_64
+CPU op-mode(s):       32-bit, 64-bit
+Byte Order:           Little Endian
+CPU(s):               4
+On-line CPU(s) list:  0-3
+Thread(s) per core:   1
+Core(s) per socket:   4
+Socket(s):            1
+NUMA node(s):         1
+Vendor ID:            GenuineIntel
+CPU family:           6
+Model:                58
+Model name:           Intel(R) Core(TM) i5-3550 CPU @ 3.30GHz
+```
+
+## Tiempos
+
+|  Threads | slide00.txt | slide02.txt |
+|:--------:|------------:|------------:|
+| Sin MT   |       0.019 |       4.331 |
+|     1    |       0.037 |       4.494 |
+|     2    |       0.037 |       2.342 |
+|     3    |       0.037 |       1.657 |
+|     4    |       0.037 |       1.306 |
+|     5    |       0.037 |       1.327 |
+|     6    |       0.037 |       1.358 |
+|     7    |       0.038 |       1.486 |
+|     8    |       0.038 |       1.638 |
+|     9    |       0.038 |       1.686 |
+|    10    |       0.038 |       1.689 |
+|    20    |       0.039 |       1.693 |
+|    40    |       0.042 |       1.717 |
+|    80    |       0.048 |       1.761 |
