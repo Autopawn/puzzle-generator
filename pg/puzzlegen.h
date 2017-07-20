@@ -45,8 +45,8 @@ static inline uchar pglevel_at(const pglevel *level,
     else return level->cells[y][x];
 }
 
-uint pgstate_hash(const pgstate *state);
-int pgstate_equals(const pgstate *state_a, const pgstate *state_b);
+uint pgstate_hash(pgstate *state);
+int pgstate_equals(pgstate *state_a, pgstate *state_b);
 int pgstate_all_pieces_different(
 		const pgstate *state_a, const pgstate *state_b, int ignore_stat);
 

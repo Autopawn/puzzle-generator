@@ -17,6 +17,7 @@ int main(int argc, char const *argv[]){
 	pgstate state;
 	int n_moves = 0;
 	pgread_from_file(argv[1],&level,&state);
+    pgstate_hash(&state);
 	//Draw level:
 	while(1){
 		printf("\033[2J\033[1;1H");
@@ -27,6 +28,7 @@ int main(int argc, char const *argv[]){
 			result = PUZZLE_RULE(&level,&state);
 			if(result.conclusion!=STEP) break;
 			state = result.next.step;
+            pgstate_hash(&state);
 			printf("\033[2J\033[1;1H");
 			pgshow_state(&level,&state,0);
 			usleep(30000);
@@ -46,6 +48,7 @@ int main(int argc, char const *argv[]){
 					scanf("%d",&answer);
 					if(0<=answer && answer<result.n_choices){
 						state = result.next.choices[answer].resulting;
+                        pgstate_hash(&state);
 						break;
 					}else{
 						printf("Enter a valid number!\n");

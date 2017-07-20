@@ -9,6 +9,7 @@ void pgstate_step(pgrule rule, pgstate *state, pgconclusion *conclu){
         result = rule(state);
         if(result.conclusion!=STEP) break;
         *state = result.next.step;
+        pgstate_hash(state);
     }
 	*conclu = result.conclusion;
 }

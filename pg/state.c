@@ -16,11 +16,11 @@ int pgpiece_compare(const void *p_a, const void *p_b){
     return hash_a-hash_b;
 }
 
-void pgstate_sort(const pgstate *state){
+void pgstate_sort(pgstate *state){
     qsort((void*)state->pieces,state->n_pieces,sizeof(pgpiece),pgpiece_compare);
 }
 
-uint pgstate_hash(const pgstate *state){
+uint pgstate_hash(pgstate *state){
     pgstate_sort(state);
     uint hash = 0;
     for(int k=0;k<STATE_VARS;k++){
@@ -36,7 +36,7 @@ uint pgstate_hash(const pgstate *state){
     return hash;
 }
 
-int pgstate_equals(const pgstate *state_a, const pgstate *state_b){
+int pgstate_equals(pgstate *state_a,pgstate *state_b){
     if(state_a->n_pieces!=state_b->n_pieces) return 0;
     for(int k=0;k<STATE_VARS;k++){
         if(state_a->vars[k]!=state_b->vars[k]) return 0;
