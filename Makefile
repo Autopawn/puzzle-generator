@@ -3,7 +3,8 @@ debug = 0
 flags = -pthread -D THREADS=$(threads) -D DEBUG=$(debug)
 
 game: clean puzzlerules
-	gcc -Wall -std=c11 game/main.c -lSDL2 -lSDL2_image -o bin/game.o
+	gcc -Wall -std=c11 game/main.c \
+		-Lbin -lpuzzlegen -lpuzzlerules -lSDL2 -lSDL2_image -o bin/game.o
 build: clean puzzlerules puzzleutils
 	# Done!
 puzzlegen:
