@@ -2,7 +2,9 @@ threads = 4
 debug = 0
 flags = -pthread -D THREADS=$(threads) -D DEBUG=$(debug)
 
-build: clean puzzlegen puzzlerules puzzleutils
+game: clean puzzlerules
+	gcc -Wall -std=c11 game/main.c -lSDL2 -lSDL2_image -o bin/game.o
+build: clean puzzlerules puzzleutils
 	# Done!
 puzzlegen:
 	# Compile puzzlegen static library:
@@ -13,7 +15,7 @@ puzzlegen:
 	ar rcs bin/libpuzzlegen.a bin/*.o
 	cp pg/puzzlegen.h bin/puzzlegen.h
 	rm bin/*.o
-puzzlerules:
+puzzlerules: puzzlegen
 	# Compile puzzle rules:
 	gcc -Wall -std=c11 -c rules/slide.c -o bin/slide.o $(flags)
 	ar rcs bin/libpuzzlerules.a bin/*.o
