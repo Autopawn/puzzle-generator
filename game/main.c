@@ -194,10 +194,7 @@ int read_choice(pgresult *result, SDL_Event ev) {
             char phchoi_desc[CHOICE_DESCRIPTION_BUFFER];
             sprintf(phchoi_desc,"move (%d,%d) %s",
                 pchoi_x,pchoi_y,dir_name[ev_dir]);
-            printf("move (%d,%d) %s\n",
-                pchoi_x,pchoi_y,dir_name[ev_dir]);
             for(int i = 0; i < result->n_choices; i++){
-                printf("other: %s\n",result->next.choices[i].description);
                 if(strcmp(phchoi_desc,result->next.choices[i].description)==0){
                     return i;
                 }
@@ -219,51 +216,45 @@ int play_level(pglevel *level, pgstate *state) {
     int n_moves = 0;
     pgstate_hash(state);
     while(1) {
-        display_level(level,state);
-        pgresult result;
-		while(1) {
-			result = PUZZLE_RULE(level,state);
-			if(result.conclusion!=STEP) break;
-			*state = result.next.step;
+        pgresult result = PUZZLE_RULE(level, state);
+        display_level(level, state);
+        SDL_Delay(30);
+        // Advance steps
+        if(result.conclusion == STEP) {
+            *state = result.next.step;
             pgstate_hash(state);
-            // Display level, left some time to display the previous
-            SDL_Delay(30);
-			display_level(level,state);
-		}
+        }
+        // React to no more choices:
+        else if(result.conclusion == CHOICE && result.n_choices <= 0) {
+            printf("NO MORE CHOICES!\n");
+            return -1;
+        }
         // React to a choice
-        if(result.conclusion==CHOICE) {
-            if(result.n_choices<=0) {
-                printf("NO CHOICES!\n");
-                return -1;
-            } else {
-                printf("CHOICE %d:\n",++n_moves);
-                for(int i=0;i<result.n_choices;i++) {
-                    printf("%6d) %s\n",i,result.next.choices[i].description);
+        else if(result.conclusion == CHOICE) {
+            // Wait for user input
+            SDL_Event ev;
+            while(SDL_PollEvent(&ev) != 0) {
+                // User requests quit
+                if(ev.type == SDL_QUIT) {
+                    return -3;
                 }
-                // Wait for user input
-                int still_trying = 1;
-                while(still_trying) {
-                    SDL_Event ev;
-                    while(SDL_PollEvent(&ev) != 0) {
-                        // User requests quit
-                        if(ev.type == SDL_QUIT) {
-                            return -3;
-                        }
-                        // Read player choice:
-                        int answer = read_choice(&result, ev);
-                        if(answer >= 0){
-                            *state = result.next.choices[answer].resulting;
-                            pgstate_hash(state);
-                            still_trying = 0;
-                            break;
-                        }
-                    }
+                // Read player choice:
+                int answer = read_choice(&result, ev);
+                if(answer >= 0){
+                    n_moves++;
+                    *state = result.next.choices[answer].resulting;
+                    pgstate_hash(state);
+                    break;
                 }
             }
-        } else if(result.conclusion==WIN) {
+        }
+        // Win
+        else if(result.conclusion==WIN) {
             printf("WIN ON %d CHOICES!\n",n_moves);
             return n_moves;
-        } else {
+        }
+        // Strange
+        else {
             printf("STRANGE CONCLUSION: %d\n",result.conclusion);
             return -2;
         }
