@@ -48,7 +48,7 @@ static inline uchar pglevel_at(const pglevel *level,
 uint pgstate_hash(pgstate *state);
 int pgstate_equals(pgstate *state_a, pgstate *state_b);
 int pgstate_all_pieces_different(
-		const pgstate *state_a, const pgstate *state_b, int ignore_stat);
+	const pgstate *state_a, const pgstate *state_b, int ignore_stat);
 
 void pgread_from_file(const char *fname, pglevel *lvl, pgstate *ini);
 void pgshow_state(const pglevel *lvl, const pgstate *ini, int mode);
