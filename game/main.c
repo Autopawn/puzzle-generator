@@ -12,10 +12,11 @@
 
 #define TILE_BORDER 4
 
-#define N_SPRITES 2
+#define N_SPRITES 3
 const char* sprite_dirs[] = {
     "game/res/person-8x.png",
     "game/res/box-8x.png",
+    "game/res/globe-8x.png",
 };
 const char* background_dir = "game/res/background.png";
 

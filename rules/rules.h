@@ -16,4 +16,10 @@ static const char *dir_name[] = {"nowhere","right","up","left","down"};
 
 pgresult slide_rule(const pglevel *level, const pgstate *state);
 
+/* KINDS OF PIECES:
+0 = sliding person.
+1 = sliding box.
+2 = bubble.
+*/
+
 #endif

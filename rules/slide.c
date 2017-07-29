@@ -12,7 +12,19 @@ int occupying(const pglevel *level, const pgstate *state,
 	return -2;
 }
 
+// Deletes pieces indicated on indexes,
+void destroy_pieces(pgstate *state, int *will_die){
+    int new_n_pieces = 0;
+    for(int i=0;i<state->n_pieces;i++){
+        if(will_die[i]) continue;
+        if(new_n_pieces!=i) state->pieces[new_n_pieces] = state->pieces[i];
+        new_n_pieces++;
+    }
+    state->n_pieces = new_n_pieces;
+}
+
 pgresult slide_rule(const pglevel *level, const pgstate *state){
+    int will_die[MAX_PIECES] = {0};
 	pgresult result;
 
 	// If there is a piece kind 0 on a goal, return WIN result.
@@ -41,16 +53,28 @@ pgresult slide_rule(const pglevel *level, const pgstate *state){
 				result.next.step.pieces[k].p_x = next_x;
 				result.next.step.pieces[k].p_y = next_y;
 			}else{
-                // If the other piece is a kind 1 (box), start moving it:
-                if(ocup>=0 && state->pieces[ocup].kind==1){
-                    result.next.step.pieces[ocup].stat = piece.stat;
+                // If was stopped by a piece:
+                if(ocup>=0){
+                    // If that piece is a kind 1 (box), start moving it:
+                    if(state->pieces[ocup].kind==1){
+                        result.next.step.pieces[ocup].stat = piece.stat;
+                    }
+                    // If that piece is kind 2 (bubble), pop it:
+                    if(state->pieces[ocup].kind==2){
+                        will_die[ocup] = 1;
+                    }
                 }
 				// Stop moving the piece.
 				result.next.step.pieces[k].stat = 0;
 			}
 		}
 	}
-	if(moving) return result;
+	if(moving){
+        // Eliminate pieces
+        destroy_pieces(&result.next.step,will_die);
+        // Return next state on a result
+        return result;
+    }
 
 	// If no piece is moving, this is a choice:
 	result.conclusion = CHOICE;
