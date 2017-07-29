@@ -12,9 +12,10 @@
 
 #define TILE_BORDER 4
 
-#define N_SPRITES 1
+#define N_SPRITES 2
 const char* sprite_dirs[] = {
-    "game/res/person-8x.png"
+    "game/res/person-8x.png",
+    "game/res/box-8x.png",
 };
 const char* background_dir = "game/res/background.png";
 
@@ -171,7 +172,7 @@ void display_level() {
     for(int i=0;i<state.n_pieces;i++) {
         // Decide sprite for the kind of the piece
         int spr_index = state.pieces[i].kind;
-        if(spr_index<=N_SPRITES) spr_index = N_SPRITES-1;
+        if(spr_index>=N_SPRITES) spr_index = N_SPRITES-1;
         // Draw piece in the right place
         SDL_Rect dstrect;
         tile_to_pix(state.pieces[i].p_x, state.pieces[i].p_y,

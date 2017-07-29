@@ -3,6 +3,9 @@
 
 #include "../bin/puzzlegen.h"
 
+#define UNTRAVERSABLE -1
+#define TRAVERSABLE -2
+
 #define OPEN 0
 #define WALL 1
 #define GOAL 2
