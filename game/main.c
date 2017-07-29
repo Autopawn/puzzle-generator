@@ -4,7 +4,7 @@
 #include "../bin/puzzlegen.h"
 #include "../bin/rules.h"
 
-#define SCREEN_WIDTH 480
+#define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480
 #define BORDER 16
 
@@ -16,14 +16,20 @@
 const char* sprite_dirs[] = {
     "game/res/person-8x.png"
 };
+const char* background_dir = "game/res/background.png";
 
 SDL_Window* window;
 SDL_Surface* screen_surface;
+SDL_Surface* background;
 SDL_Surface* sprites[N_SPRITES];
 pglevel level;
 pgstate state;
 int event_start_x;
 int event_start_y;
+
+int bg_r = 64;
+int bg_g = 127;
+int bg_b = 127;
 
 static unsigned char colors[][3] = {{255,255,255},{0,0,0},{127,127,255}};
 
@@ -77,6 +83,14 @@ void init_game() {
             IMG_GetError());
         exit(1);
     }
+    // Load background
+    background = NULL;
+    background = IMG_Load(background_dir);
+    if(background == NULL) {
+        printf("Unable to load image %s! SDL_image Error: %s\n",
+            background_dir, IMG_GetError());
+        exit(1);
+    }
     // Load sprites
     for(int i = 0; i < N_SPRITES; i++) {
         sprites[i] = NULL;
@@ -91,6 +105,8 @@ void init_game() {
 }
 
 void close_game() {
+    // Deallocate background
+    SDL_FreeSurface(background);
     // Deallocate sprites
     for(int i = 0; i < N_SPRITES; i++) {
         SDL_FreeSurface(sprites[i]);
@@ -107,7 +123,19 @@ void display_level() {
     int tile_size = get_tile_size();
     // Draw background
     SDL_FillRect(screen_surface, NULL,
-        SDL_MapRGB(screen_surface->format, 255, 255, 255));
+        SDL_MapRGB(screen_surface->format, bg_r, bg_g, bg_b));
+    int rep_x = (SCREEN_WIDTH+background->w-1)/background->w;
+    int rep_y = (SCREEN_HEIGHT+background->h-1)/background->h;
+    for(int y = 0; y <= rep_y; y++) {
+        for(int x = 0; x <= rep_x; x++) {
+            SDL_Rect dstrect;
+            dstrect.x = x*background->w;
+            dstrect.y = y*background->h;
+            dstrect.w = background->w;
+            dstrect.h = background->h;
+            SDL_BlitScaled(background, NULL, screen_surface, &dstrect);
+        }
+    }
     // Draw tiles background
     for(int y = 0; y <= level.max_y; y++) {
         for(int x = 0; x <= level.max_x; x++) {
@@ -119,7 +147,7 @@ void display_level() {
                 dstrect.w = tile_size+2*TILE_BORDER;
                 dstrect.h = tile_size+2*TILE_BORDER;
                 SDL_FillRect(screen_surface, &dstrect,
-                    SDL_MapRGB(screen_surface->format, 0, 0, 0));
+                    SDL_MapRGB(screen_surface->format, bg_r, bg_g, bg_b));
             }
         }
     }
