@@ -12,15 +12,21 @@ int occupying(const pglevel *level, const pgstate *state,
 	return -2;
 }
 
-// Deletes pieces indicated on indexes,
-void destroy_pieces(pgstate *state, int *will_die){
+// Deletes pieces indicated on indexes, returns the number of deleted pieces.
+int destroy_pieces(pgstate *state, int *will_die){
     int new_n_pieces = 0;
     for(int i=0;i<state->n_pieces;i++){
         if(will_die[i]) continue;
         if(new_n_pieces!=i) state->pieces[new_n_pieces] = state->pieces[i];
         new_n_pieces++;
     }
+    int delta = state->n_pieces-new_n_pieces;
     state->n_pieces = new_n_pieces;
+    return delta;
+}
+
+int is_enemy(int kind){
+    return kind==3 || kind==4;
 }
 
 pgresult slide_rule(const pglevel *level, const pgstate *state){
@@ -36,31 +42,30 @@ pgresult slide_rule(const pglevel *level, const pgstate *state){
 		}
 	}
 
-	// If there is a piece that is moving, move it, return step result.
+    int moving = 0;
 	result.conclusion = STEP;
-	int moving = 0;
-	result.next.step = *state;
+    pgstate next = *state;
 
-    // Normal piece movement:
 	for(int k=0;k<state->n_pieces;k++){
 		pgpiece piece = state->pieces[k];
-		if(piece.stat>0){
-			moving = 1;
+        // Normal piece movement:
+		if(piece.stat>0 && (!is_enemy(piece.kind) || state->vars[0]==0)){
+            moving = 1;
 			int next_x = piece.p_x + dir_x[piece.stat];
 			int next_y = piece.p_y + dir_y[piece.stat];
 			// Check if the next position is free:
             int ocup = occupying(level,state,next_x,next_y);
 			if(ocup==TRAVERSABLE || (ocup!=UNTRAVERSABLE && piece.kind==4)){
 				// Move the piece.
-				result.next.step.pieces[k].p_x = next_x;
-				result.next.step.pieces[k].p_y = next_y;
+				next.pieces[k].p_x = next_x;
+				next.pieces[k].p_y = next_y;
 			}
             if(ocup!=TRAVERSABLE || piece.kind==4){
                 // If was stopped by a piece:
                 if(ocup>=0){
                     // If that piece is a kind 1 (box), start moving it:
                     if(state->pieces[ocup].kind==1){
-                        result.next.step.pieces[ocup].stat = piece.stat;
+                        next.pieces[ocup].stat = piece.stat;
                     }
                     // If that piece is kind 2 (bubble), pop it:
                     if(state->pieces[ocup].kind==2){
@@ -84,68 +89,56 @@ pgresult slide_rule(const pglevel *level, const pgstate *state){
                     }
                 }
 				// Stop moving the piece.
-				result.next.step.pieces[k].stat = 0;
+				next.pieces[k].stat = 0;
 			}
 		}
+        // Enemy thinking:
+        if(is_enemy(piece.kind) && state->vars[0]==1){
+            int move_dir = -1;
+            for(int j=0;j<state->n_pieces;j++){
+                pgpiece other = state->pieces[j];
+                if(other.kind==0){
+                    int dir_force = 0;
+                    if(other.p_x==piece.p_x){
+                        dir_force = other.p_y>piece.p_y? 4 : 2;
+                    }
+                    if(other.p_y==piece.p_y){
+                        dir_force = other.p_x>piece.p_x? 1 : 3;
+                    }
+                    if(dir_force!=0){
+                        if(move_dir==-1 || dir_force==move_dir){
+                            // Move
+                            move_dir = dir_force;
+                        }else{
+                            // Choose not to move, because of confusion
+                            move_dir = 0;
+                            break;
+                        }
+                    }
+                }
+            }
+            if(move_dir!=-1) next.pieces[k].stat = move_dir;
+        }
 	}
 
-    //Check if a piece moved:
-	if(moving){
-        // Eliminate pieces
-        destroy_pieces(&result.next.step,will_die);
+	if(moving || next.vars[0]==1){
+        // If not moving, go to next phase:
+        if(!moving) next.vars[0] = 1-next.vars[0];
         // Return next state on a result
-        return result;
-    }
-
-    // If no piece is moving, pass to the next phase, use the vars[0] to know
-    // when to end.
-    if(state->vars[0]==0){
-        result.next.step.vars[0] = 1;
-        // Time for the enemies to think:
-        for(int k=0;k<state->n_pieces;k++){
-            pgpiece piece = state->pieces[k];
-            if(piece.kind == 3 || piece.kind == 4){
-                int nearest_dist = 256;
-                int nearest_dir = 0;
-                for(int j=0;j<state->n_pieces;j++){
-                    pgpiece other = state->pieces[j];
-                    if(other.kind==0){
-                        int delta_x = (int)other.p_x-(int)piece.p_x;
-                        int delta_y = (int)other.p_y-(int)piece.p_y;
-                        int dist = abs(delta_x)>abs(delta_y)?
-                            abs(delta_x):abs(delta_y);
-                        int dir = 0;
-                        if(abs(delta_x)>abs(delta_y)){
-                            dir = (delta_x > 0)? 1 : 3;
-                        }else if(abs(delta_x)<abs(delta_y)){
-                            dir = (delta_y > 0)? 4 : 2;
-                        }
-                        if(dist<nearest_dist){
-                            nearest_dist = dist;
-                            nearest_dir = dir;
-                        }else if(dist==nearest_dist){
-                            if(nearest_dir!=dir){
-                                nearest_dir = 0;
-                            }
-                        }
-                    }
-                }
-                // Bugs cannot move if occupied
-                if(piece.kind == 3){
-                    int next_x = piece.p_x + dir_x[nearest_dir];
-                    int next_y = piece.p_y + dir_y[nearest_dir];
-                    if(occupying(level,state,next_x,next_y)!=TRAVERSABLE){
-                        nearest_dir = 0;
-                    }
-                }
-                // Update movement:
-                result.next.step.pieces[k].stat = nearest_dir;
-            }
-        }
+        destroy_pieces(&next,will_die);
+        result.next.step = next;
         return result;
     }
 
 	// If no piece is moving, this is a choice:
+
+    // Reset piece movement
+    next.vars[0] = 1;
+    for(int k=0;k<next.n_pieces;k++){
+        next.pieces[k].stat = 0;
+    }
+
+    // Create choices
 	result.conclusion = CHOICE;
 	result.n_choices = 0;
 	for(int k=0;k<state->n_pieces;k++){
@@ -160,9 +153,7 @@ pgresult slide_rule(const pglevel *level, const pgstate *state){
 				// Add the choice:
 				pgstate *resulting =
 					&result.next.choices[result.n_choices].resulting;
-				*resulting = *state;
-                // NOTE: After a choice the var[0] is resetted!
-                resulting->vars[0] = 0;
+				*resulting = next;
                 // Add state modification:
 				resulting->pieces[k].stat = dir;
 				sprintf(result.next.choices[result.n_choices].description,

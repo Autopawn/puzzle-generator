@@ -251,7 +251,7 @@ int play_level(pglevel *level, pgstate *state) {
     while(1) {
         pgresult result = PUZZLE_RULE(level, state);
         display_level(level, state);
-        SDL_Delay(30);
+        SDL_Delay(50);
         // Advance steps
         if(result.conclusion == STEP) {
             *state = result.next.step;
