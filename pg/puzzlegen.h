@@ -134,4 +134,11 @@ void pgexectree_all_pieces_different_states(
 		const pgexectree *tree, int only_winning, int ignore_stat,
 		int result[MAX_DEEPNESS]);
 
+//##########################################################
+//# PROCGEN OF LEVELS                                      #
+//##########################################################
+
+pglevel pglevel_generate(int seed, int s_x, int s_y, int min_cells,
+        int mirr_x, int mirr_y, int mirr_dig, int pepper);
+
 #endif

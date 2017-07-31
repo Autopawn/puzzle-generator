@@ -13,6 +13,7 @@ puzzlegen:
 	gcc -Wall -std=c11 -c pg/state.c -o bin/state.o $(flags)
 	gcc -Wall -std=c11 -c pg/exec.c -o bin/exec.o $(flags)
 	gcc -Wall -std=c11 -c pg/analysis.c -o bin/analysis.o $(flags)
+	gcc -Wall -std=c11 -c pg/proc.c -o bin/proc.o $(flags)
 	ar rcs bin/libpuzzlegen.a bin/*.o
 	cp pg/puzzlegen.h bin/puzzlegen.h
 	rm bin/*.o
@@ -28,5 +29,7 @@ puzzleutils:
 		-Lbin -lpuzzlegen -lpuzzlerules -o bin/analysis_tool.exe $(flags)
 	gcc -Wall -std=c11 -static utils/execution_tool.c \
 		-Lbin -lpuzzlegen -lpuzzlerules -o bin/execution_tool.exe $(flags)
+	gcc -Wall -std=c11 -static utils/procgen_tool.c \
+		-Lbin -lpuzzlegen -lpuzzlerules -o bin/procgen_tool.exe $(flags)
 clean:
 	rm -rf bin || true
