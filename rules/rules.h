@@ -21,6 +21,7 @@ pgresult slide_rule(const pglevel *level, const pgstate *state);
 1 = sliding box.
 2 = bubble.
 3 = bug.
+4 = fire.
 */
 
 #endif

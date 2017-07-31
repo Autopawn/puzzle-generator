@@ -50,11 +50,12 @@ pgresult slide_rule(const pglevel *level, const pgstate *state){
 			int next_y = piece.p_y + dir_y[piece.stat];
 			// Check if the next position is free:
             int ocup = occupying(level,state,next_x,next_y);
-			if(ocup==TRAVERSABLE){
+			if(ocup==TRAVERSABLE || (ocup!=UNTRAVERSABLE && piece.kind==4)){
 				// Move the piece.
 				result.next.step.pieces[k].p_x = next_x;
 				result.next.step.pieces[k].p_y = next_y;
-			}else{
+			}
+            if(ocup!=TRAVERSABLE || piece.kind==4){
                 // If was stopped by a piece:
                 if(ocup>=0){
                     // If that piece is a kind 1 (box), start moving it:
@@ -71,6 +72,14 @@ pgresult slide_rule(const pglevel *level, const pgstate *state){
                     }
                     // If that piece is kind 3 (bug), and I am 0 (person):
                     if(piece.kind==0 && state->pieces[ocup].kind==3){
+                        will_die[ocup] = 1;
+                    }
+                    // If that piece is kind 4 (fire), I die:
+                    if(state->pieces[ocup].kind==4){
+                        will_die[k] = 1;
+                    }
+                    // If I am kind 4 (fire), the other dies:
+                    if(piece.kind==4 && state->pieces[ocup].kind!=4){
                         will_die[ocup] = 1;
                     }
                 }
@@ -95,7 +104,7 @@ pgresult slide_rule(const pglevel *level, const pgstate *state){
         // Time for the enemies to think:
         for(int k=0;k<state->n_pieces;k++){
             pgpiece piece = state->pieces[k];
-            if(piece.kind == 3){
+            if(piece.kind == 3 || piece.kind == 4){
                 int nearest_dist = 256;
                 int nearest_dir = 0;
                 for(int j=0;j<state->n_pieces;j++){
@@ -121,7 +130,15 @@ pgresult slide_rule(const pglevel *level, const pgstate *state){
                         }
                     }
                 }
-                if(nearest_dist<=1) nearest_dir = 0;
+                // Bugs cannot move if occupied
+                if(piece.kind == 3){
+                    int next_x = piece.p_x + dir_x[nearest_dir];
+                    int next_y = piece.p_y + dir_y[nearest_dir];
+                    if(occupying(level,state,next_x,next_y)!=TRAVERSABLE){
+                        nearest_dir = 0;
+                    }
+                }
+                // Update movement:
                 result.next.step.pieces[k].stat = nearest_dir;
             }
         }
