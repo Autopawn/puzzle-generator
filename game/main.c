@@ -12,11 +12,12 @@
 
 #define TILE_BORDER 4
 
-#define N_SPRITES 3
+#define N_SPRITES 4
 const char* sprite_dirs[] = {
     "game/res/person-8x.png",
     "game/res/box-8x.png",
     "game/res/globe-8x.png",
+    "game/res/bug-8x.png",
 };
 const char* background_dir = "game/res/background.png";
 
@@ -93,6 +94,7 @@ void init_game() {
             background_dir, IMG_GetError());
         exit(1);
     }
+    printf("mode: %d\n",SDL_SetSurfaceBlendMode(background,SDL_BLENDMODE_MOD));
     // Load sprites
     for(int i = 0; i < N_SPRITES; i++) {
         sprites[i] = NULL;

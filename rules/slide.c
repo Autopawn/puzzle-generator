@@ -40,6 +40,8 @@ pgresult slide_rule(const pglevel *level, const pgstate *state){
 	result.conclusion = STEP;
 	int moving = 0;
 	result.next.step = *state;
+
+    // Normal piece movement:
 	for(int k=0;k<state->n_pieces;k++){
 		pgpiece piece = state->pieces[k];
 		if(piece.stat>0){
@@ -63,16 +65,66 @@ pgresult slide_rule(const pglevel *level, const pgstate *state){
                     if(state->pieces[ocup].kind==2){
                         will_die[ocup] = 1;
                     }
+                    // If that piece is kind 0 (person), and I am 3 (bug):
+                    if(piece.kind==3 && state->pieces[ocup].kind==0){
+                        will_die[ocup] = 1;
+                    }
+                    // If that piece is kind 3 (bug), and I am 0 (person):
+                    if(piece.kind==0 && state->pieces[ocup].kind==3){
+                        will_die[ocup] = 1;
+                    }
                 }
 				// Stop moving the piece.
 				result.next.step.pieces[k].stat = 0;
 			}
 		}
 	}
+
+    //Check if a piece moved:
 	if(moving){
         // Eliminate pieces
         destroy_pieces(&result.next.step,will_die);
         // Return next state on a result
+        return result;
+    }
+
+    // If no piece is moving, pass to the next phase, use the vars[0] to know
+    // when to end.
+    if(state->vars[0]==0){
+        result.next.step.vars[0] = 1;
+        // Time for the enemies to think:
+        for(int k=0;k<state->n_pieces;k++){
+            pgpiece piece = state->pieces[k];
+            if(piece.kind == 3){
+                int nearest_dist = 256;
+                int nearest_dir = 0;
+                for(int j=0;j<state->n_pieces;j++){
+                    pgpiece other = state->pieces[j];
+                    if(other.kind==0){
+                        int delta_x = (int)other.p_x-(int)piece.p_x;
+                        int delta_y = (int)other.p_y-(int)piece.p_y;
+                        int dist = abs(delta_x)>abs(delta_y)?
+                            abs(delta_x):abs(delta_y);
+                        int dir = 0;
+                        if(abs(delta_x)>abs(delta_y)){
+                            dir = (delta_x > 0)? 1 : 3;
+                        }else if(abs(delta_x)<abs(delta_y)){
+                            dir = (delta_y > 0)? 4 : 2;
+                        }
+                        if(dist<nearest_dist){
+                            nearest_dist = dist;
+                            nearest_dir = dir;
+                        }else if(dist==nearest_dist){
+                            if(nearest_dir!=dir){
+                                nearest_dir = 0;
+                            }
+                        }
+                    }
+                }
+                if(nearest_dist<=1) nearest_dir = 0;
+                result.next.step.pieces[k].stat = nearest_dir;
+            }
+        }
         return result;
     }
 
@@ -92,6 +144,9 @@ pgresult slide_rule(const pglevel *level, const pgstate *state){
 				pgstate *resulting =
 					&result.next.choices[result.n_choices].resulting;
 				*resulting = *state;
+                // NOTE: After a choice the var[0] is resetted!
+                resulting->vars[0] = 0;
+                // Add state modification:
 				resulting->pieces[k].stat = dir;
 				sprintf(result.next.choices[result.n_choices].description,
 					"move (%d,%d) %s",piece.p_x,piece.p_y,dir_name[dir]);
