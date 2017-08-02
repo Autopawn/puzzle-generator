@@ -12,32 +12,37 @@ int main(int argc, char const *argv[]){
 		printf("Usage: %s <seed> <size_x> <size_y> [h][v][d] <fname>\n",argv[0]);
 		exit(1);
 	}
+
     int seed;
+    sscanf(argv[1],"%d",&seed);
+    if(seed==-1) srand(time(0));
+    else srand(seed);
+
     int size_x;
     int size_y;
-    sscanf(argv[1],"%d",&seed);
-    if(seed==-1) seed = time(0);
     sscanf(argv[2],"%d",&size_x);
     sscanf(argv[3],"%d",&size_y);
-    int min_cells = size_x*size_y*7/10;
 
-    int mirr_h = 0;
-    int mirr_v = 0;
-    int mirr_d = 0;
+    int mirror = 0;
     if(argc==6){
         const char* scanner = argv[4];
         while(*scanner!='\0'){
-            if(*scanner=='h') mirr_h=1;
-            if(*scanner=='v') mirr_v=1;
-            if(*scanner=='d') mirr_d=1;
+            if(*scanner=='h') mirror+=1;
+            if(*scanner=='v') mirror+=2;
+            if(*scanner=='d') mirror+=4;
             scanner++;
         }
     }
 
-    pglevel level = pglevel_generate(seed, size_x, size_y, min_cells,
-        mirr_h,mirr_v,mirr_d,min_cells/4);
-
     pgstate state;
     state.n_pieces = 0;
-    pgshow_state(&level,&state,0);
+
+    pgshell shell;
+    init_pgshell(&shell,size_x,size_y);
+
+    int lits = 0;
+    lits += pgshell_pepper(&shell,size_x*size_y/4,mirror);
+    lits += pgshell_pepper(&shell,-1,mirror);
+    lits += pgshell_pepper(&shell,(size_x*size_y-lits)/3,mirror);
+    pgshow_state(&shell.level,&state,0);
 }

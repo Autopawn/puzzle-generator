@@ -138,7 +138,24 @@ void pgexectree_all_pieces_different_states(
 //# PROCGEN OF LEVELS                                      #
 //##########################################################
 
-pglevel pglevel_generate(int seed, int s_x, int s_y, int min_cells,
-        int mirr_x, int mirr_y, int mirr_dig, int pepper);
+typedef struct{
+    pglevel level;
+    int n_sets;
+    int rank[65536];
+    int parent[65536];
+    int n_lits;
+} pgshell;
+
+void init_pgshell(pgshell *shell, int s_x, int s_y);
+
+/* The progen algorithms add passable cells randomly and have the following parameters in common:
+amount = new cells to make passable required until stopping. Negative values mean to create cells until is conex.
+mirror_maks = bitmask that indicate whenever to make symmetry,
+    x_axis = 1
+    y_axis = 2
+    diagonal = 4
+*/
+
+int pgshell_pepper(pgshell *shell, int amount, int mirror_mask);
 
 #endif

@@ -5,7 +5,7 @@ flags = -pthread -D THREADS=$(threads) -D DEBUG=$(debug)
 game: clean puzzlerules
 	gcc -Wall -std=c11 game/main.c \
 		-Lbin -lpuzzlegen -lpuzzlerules -lSDL2 -lSDL2_image -o bin/game.o
-build: clean puzzlerules puzzleutils
+rebuild: clean puzzlerules puzzleutils
 	# Done!
 puzzlegen:
 	# Compile puzzlegen static library:
@@ -23,7 +23,7 @@ puzzlerules: puzzlegen
 	ar rcs bin/libpuzzlerules.a bin/*.o
 	cp rules/rules.h bin/rules.h
 	rm bin/*.o
-puzzleutils:
+puzzleutils: puzzlegen
 	# Compile analysis utility:
 	gcc -Wall -std=c11 -static utils/analysis_tool.c \
 		-Lbin -lpuzzlegen -lpuzzlerules -o bin/analysis_tool.exe $(flags)

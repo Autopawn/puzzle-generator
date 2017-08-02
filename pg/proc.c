@@ -2,15 +2,6 @@
 
 #define TRANSF(X,Y) ((Y)*256+(X))
 
-typedef struct {
-    pglevel level;
-    int n_sets;
-    int rank[65536];
-    int parent[65536];
-    int n_lits;
-} pgshell;
-
-
 void init_pgshell(pgshell *shell, int s_x, int s_y){
     for(int y=0;y<256;y++){
         for(int x=0;x<256;x++){
@@ -82,30 +73,30 @@ void pgshell_lit(pgshell *shell, int p_x, int p_y, uchar val){
     shell->level.cells[p_y][p_x] = val;
 }
 
-pglevel pglevel_generate(int seed, int s_x, int s_y, int min_cells,
-        int mirr_x, int mirr_y, int mirr_diag, int pepper){
-    pgshell shell;
-    init_pgshell(&shell,s_x,s_y);
-    srand(seed);
-    while(shell.n_lits<min_cells || shell.n_sets!=1){
-        int p_x = rand()%(shell.level.max_x+1);
-        int p_y = rand()%(shell.level.max_y+1);
-        pgshell_lit(&shell,p_x,p_y,0);
-        if(shell.n_lits>=pepper){
-            if(mirr_x==1){
-                int r_x = shell.level.max_x-p_x;
-                pgshell_lit(&shell,r_x,p_y,0);
-            }
-            if(mirr_y==1){
-                int r_y = shell.level.max_y-p_y;
-                pgshell_lit(&shell,p_x,r_y,0);
-            }
-            if(mirr_diag==1){
-                int r_x = shell.level.max_x-p_x;
-                int r_y = shell.level.max_y-p_y;
-                pgshell_lit(&shell,r_x,r_y,0);
+int pgshell_pepper(pgshell *shell, int amount, int mirror_mask){
+    int total = (shell->level.max_x+1)*(shell->level.max_y+1);
+    int required = amount+shell->n_lits;
+    int pre_n_lits = shell->n_lits;
+    // If more cells than the total are required, lit them all.
+    if(required>=total){
+        for(int y=0;y<=shell->level.max_y;y++){
+            for(int x=0;x<=shell->level.max_x;x++){
+                pgshell_lit(shell,x,y,0);
             }
         }
+        return shell->n_lits-pre_n_lits;
     }
-    return shell.level;
+    // Lit cells until reach conditions.
+    while((amount<0 && shell->n_sets>1) ||
+            (amount>=0 && shell->n_lits<required)){
+        int p_x = rand()%(shell->level.max_x+1);
+        int p_y = rand()%(shell->level.max_y+1);
+        pgshell_lit(shell,p_x,p_y,0);
+        int r_x = shell->level.max_x-p_x;
+        int r_y = shell->level.max_y-p_y;
+        if(mirror_mask&1) pgshell_lit(shell,r_x,p_y,0);
+        if(mirror_mask&2) pgshell_lit(shell,p_x,r_y,0);
+        if(mirror_mask&4) pgshell_lit(shell,r_x,r_y,0);
+    }
+    return shell->n_lits-pre_n_lits;
 }
