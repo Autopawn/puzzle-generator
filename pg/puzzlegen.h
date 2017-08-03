@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 
 #if THREADS>0
 	#include <pthread.h>
@@ -88,6 +89,8 @@ typedef struct{
     pgnext next;
 } pgresult;
 
+typedef unsigned long long int prob;
+
 typedef struct _pgexecnode pgexecnode;
 
 struct _pgexecnode{
@@ -97,6 +100,7 @@ struct _pgexecnode{
     pgexecnode *link; // For use on a linked list on a hash slot.
     pgexecnode *nexts[MAX_CHOICES]; // For use on a tree graph.
     int n_nexts;
+    prob probability; // For analysis use.
 };
 
 typedef struct{
@@ -126,6 +130,10 @@ void pgexectree_free(const pgexectree *tree);
 //##########################################################
 //# EXECUTION ANALYSIS                                     #
 //##########################################################
+
+prob pgexectree_random_win_probability(const pgexectree *tree);
+
+int get_prob_log2(prob probability);
 
 void pgexectree_states_at_deepness(
 		const pgexectree *tree, int only_winning,
