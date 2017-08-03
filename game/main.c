@@ -181,6 +181,10 @@ void display_level() {
         SDL_Rect dstrect;
         tile_to_pix(state.pieces[i].p_x, state.pieces[i].p_y,
             &dstrect.x, &dstrect.y);
+        int dezpl_x = dir_x[state.pieces[i].stat]*tile_size/5;
+        int dezpl_y = dir_y[state.pieces[i].stat]*tile_size/5;
+        dstrect.x += dezpl_x;
+        dstrect.y += dezpl_y;
         dstrect.w = tile_size;
         dstrect.h = tile_size;
         SDL_BlitScaled(sprites[spr_index], NULL, screen_surface, &dstrect);

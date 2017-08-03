@@ -71,11 +71,11 @@ pgresult slide_rule(const pglevel *level, const pgstate *state){
                     if(state->pieces[ocup].kind==2){
                         will_die[ocup] = 1;
                     }
-                    // If that piece is kind 0 (person), and I am 3 (bug):
+                    // If that piece is kind 0 (person), and I am 3 (sun):
                     if(piece.kind==3 && state->pieces[ocup].kind==0){
                         will_die[ocup] = 1;
                     }
-                    // If that piece is kind 3 (bug), and I am 0 (person):
+                    // If that piece is kind 3 (sun), and I am 0 (person):
                     if(piece.kind==0 && state->pieces[ocup].kind==3){
                         will_die[ocup] = 1;
                     }
