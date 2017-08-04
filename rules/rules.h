@@ -24,6 +24,7 @@ pgresult slide_rule(const pglevel *level, const pgstate *state);
 2 = bubble.
 3 = sun.
 4 = fire.
+5 = clone.
 */
 
 #endif

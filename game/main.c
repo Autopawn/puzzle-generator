@@ -12,13 +12,14 @@
 
 #define TILE_BORDER 4
 
-#define N_SPRITES 5
+#define N_SPRITES 6
 const char* sprite_dirs[] = {
     "game/res/person-8x.png",
     "game/res/box-8x.png",
     "game/res/globe-8x.png",
     "game/res/sun-8x.png",
     "game/res/fire-8x.png",
+    "game/res/people-8x.png",
 };
 const char* background_dir = "game/res/background.png";
 
@@ -304,7 +305,7 @@ int main(int argc, char const *argv[]) {
     SDL_FillRect(screen_surface, NULL,
         SDL_MapRGB(screen_surface->format, 255, 255, 255));
     // Load the level
-    pgread_from_file("lvls/slide02.txt", &level, &state);
+    pgread_from_file("lvls/slide03.txt", &level, &state);
     // Play the level
     play_level(&level, &state);
     // Update the surface
