@@ -134,4 +134,14 @@ void pgexectree_all_pieces_different_states(
 		const pgexectree *tree, int only_winning, int ignore_stat,
 		int result[MAX_DEEPNESS]);
 
+int get_prob_log2(prob probability);
+
+void pgexectree_states_at_deepness(
+		const pgexectree *tree, int only_winning,
+		int result[MAX_DEEPNESS]);
+void pgexectree_all_pieces_different_states(
+		const pgexectree *tree, int only_winning, int ignore_stat,
+		int result[MAX_DEEPNESS]);
+
+
 #endif

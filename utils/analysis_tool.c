@@ -21,6 +21,8 @@ int main(int argc, char const *argv[]){
 	// Compute execution tree:
 	const pgexectree *tree = compute_pgexectree(
 		&level,ini_state,PUZZLE_RULE,-1,-1,stop_at_win);
+    // Compute random win probability:
+    int prob_log2 = get_prob_log2(pgexectree_random_win_probability(tree));
 	// Check number of new states for each deepness level:
 	int n_states[MAX_DEEPNESS];
 	int n_win_states[MAX_DEEPNESS];
@@ -56,6 +58,9 @@ int main(int argc, char const *argv[]){
 	else if(n_different_win_states[min_turns_win]==n_win_states[min_turns_win]){
 		printf("  YES\n");
 	}else printf("  NO\n");
+    // Display probability of random win:
+    printf("Probability of random win:\n");
+    printf("  2^%d\n",prob_log2);
 	// Free tree:
 	pgexectree_free(tree);
 	return 0;
