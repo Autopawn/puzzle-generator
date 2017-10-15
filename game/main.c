@@ -1,6 +1,10 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
+#include <dirent.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
 #include "../bin/puzzlegen.h"
 #include "../bin/rules.h"
 
@@ -22,6 +26,10 @@ const char* sprite_dirs[] = {
     "game/res/people-8x.png",
 };
 const char* background_dir = "game/res/background.png";
+
+const char* levels_dir = "game/levels";
+
+#define FILENAME_BUFFER 256
 
 SDL_Window* window;
 SDL_Surface* screen_surface;
@@ -299,13 +307,50 @@ int play_level(pglevel *level, pgstate *state) {
     }
 }
 
+int play_menu(){
+    const char *dir = levels_dir;
+    // Open levels directory:
+    DIR *dfd;
+    if((dfd = opendir(dir)) == NULL){
+        fprintf(stderr, "Can't open levels dir.\n");
+        return 0;
+    }
+    // Iterate directory:
+    struct dirent *dp;
+    while((dp=readdir(dfd))!=NULL){
+        // Join the filename with the dirname
+        char filename_qfd[FILENAME_BUFFER];
+        if(strlen(dp->d_name)+strlen(dir)>=FILENAME_BUFFER-2){
+            printf("Filename too large: %s/%s\n",dir,dp->d_name);
+            continue;
+        }
+        sprintf(filename_qfd,"%s/%s",dir,dp->d_name);
+        // Stat file
+        struct stat stbuf;
+        if(stat(filename_qfd,&stbuf)==-1){
+            printf("Unable to stat file: %s\n",filename_qfd) ;
+            continue;
+        }
+        // Skip directories
+        if(S_ISDIR(stbuf.st_mode)){
+            printf("%s is a directory.\n",filename_qfd);
+            continue;
+        }
+        // Print filename
+        printf("%s is a file.\n",filename_qfd);
+    }
+    return 1;
+}
+
 int main(int argc, char const *argv[]) {
     // Init systems
     init_game();
     SDL_FillRect(screen_surface, NULL,
         SDL_MapRGB(screen_surface->format, 255, 255, 255));
+    // Play the menu
+    play_menu();
     // Load the level
-    pgread_from_file("lvls/slide03.txt", &level, &state);
+    pgread_from_file("game/levels/slide03.txt", &level, &state);
     // Play the level
     play_level(&level, &state);
     // Update the surface

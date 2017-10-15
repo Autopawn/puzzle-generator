@@ -9,7 +9,7 @@ rebuild: clean puzzlerules puzzleutils
 	# Done!
 puzzlegen:
 	# Compile puzzlegen static library:
-	mkdir bin
+	mkdir -p bin
 	gcc -Wall -std=c11 -c pg/state.c -o bin/state.o $(flags)
 	gcc -Wall -std=c11 -c pg/exec.c -o bin/exec.o $(flags)
 	gcc -Wall -std=c11 -c pg/analysis.c -o bin/analysis.o $(flags)
