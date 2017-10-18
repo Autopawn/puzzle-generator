@@ -1,5 +1,5 @@
 # puzzle-generator
-Framework for procedural puzzle generator.
+Framework for procedural puzzle generation.
 
 # Dependencies:
 
